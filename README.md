@@ -2,6 +2,20 @@
 
 Rose is a local image reference manager. Connect a folder, browse its images, and keep tags and notes beside the originals as Markdown. There is no import-only library, account, or sync server.
 
+## Download
+
+- [Windows x64 — Rose 0.1.2 preview](https://github.com/turnertop/rose/releases/download/v0.1.14/Rose-Windows-0.1.2-x64.zip)
+- [macOS 14+ on Apple silicon — Rose 0.1.14](https://github.com/turnertop/rose/releases/download/v0.1.14/Rose-macOS-0.1.14-arm64.zip)
+- [All release files, source code, and checksums](https://github.com/turnertop/rose/releases/tag/v0.1.14)
+
+On Windows, choose **Extract All**, then run **Rose.exe** from the extracted
+folder. Keep the neighboring files together; .NET is included. On Mac, extract
+the ZIP and move **Rose.app** to Applications. Source-code ZIPs require building
+the app. The Windows preview is unsigned; the Mac download is ad-hoc signed and
+has not been notarized. See the release notes for validation and platform limits.
+
+## Platforms
+
 | Platform | Implementation | Status |
 | --- | --- | --- |
 | macOS 14 or later | Native SwiftUI / AppKit at the repository root | 0.1.14 |
@@ -10,12 +24,11 @@ Rose is a local image reference manager. Connect a folder, browse its images, an
 
 Each installation has its own local library and settings. Mac and Windows do not need to connect or share images. Their common file format is ordinary images plus optional `image.ext.md` sidecars.
 
-The approved macOS daily-use release is **0.1.14** (build 15), recorded on `main`
-and tagged `v0.1.14`. Use `build/Rose.app` for normal work. Superseded builds are
-kept as verified ZIP archives in the ignored `build/archives/` directory.
-Windows remains an independently versioned preview.
+The macOS download is **0.1.14** (build 15). Windows remains an independently
+versioned **0.1.2 preview**. The `v0.1.14` release contains both downloads with
+their own version numbers.
 
-**License:** Rose's original project files are licensed under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for project attribution and [third-party notices](desktop/THIRD-PARTY-NOTICES.txt) for dependencies, which retain their own licenses. The repository and packages are being prepared locally; see [publication preparation](docs/Publishing.md).
+**License:** Rose's original project files are licensed under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for project attribution and [third-party notices](desktop/THIRD-PARTY-NOTICES.txt) for dependencies, which retain their own licenses. The source and app downloads include the project license and notices; the review workflow is documented in [publication preparation](docs/Publishing.md).
 
 ## Why Rose?
 
