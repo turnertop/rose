@@ -1,6 +1,6 @@
 # Publication preparation
 
-Rose is being prepared for a first public source release under Apache-2.0.
+Rose source and application releases use Apache-2.0.
 The owner selected the unchanged Apache License 2.0 in `LICENSE`, with project
 attribution in `NOTICE`. No publication is authorized by this document or by
 the license selection itself.

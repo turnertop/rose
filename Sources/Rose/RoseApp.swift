@@ -5,22 +5,35 @@ import AppKit
 struct RoseApp: App {
     @NSApplicationDelegateAdaptor(RoseAppDelegate.self) private var appDelegate
     @StateObject private var library = LibraryModel()
+    @StateObject private var appearanceClock = AppearanceClock()
     @AppStorage("rose.appearance") private var appearance = "light"
+    @AppStorage(AutomaticAppearancePreference.key) private var automaticDayNight = AutomaticAppearancePreference.defaultValue
+
+    private var colorScheme: ColorScheme? {
+        if automaticDayNight { return appearanceClock.isNight ? .dark : .light }
+        return appearance == "system" ? nil : (appearance == "dark" ? .dark : .light)
+    }
 
     var body: some Scene {
         WindowGroup("Rose") {
             LibraryView()
                 .environmentObject(library)
                 .tint(RoseStyle.accent)
-                .preferredColorScheme(appearance == "system" ? nil : (appearance == "dark" ? .dark : .light))
-                .onAppear { appDelegate.library = library }
+                .preferredColorScheme(colorScheme)
+                .onAppear { appDelegate.library = library; appearanceClock.setEnabled(automaticDayNight) }
+                .onChange(of: automaticDayNight) { _, enabled in appearanceClock.setEnabled(enabled) }
         }
         .windowStyle(.hiddenTitleBar)
         .windowToolbarStyle(.unifiedCompact)
         .defaultSize(width: 1400, height: 900)
         .commands { RoseCommands(library: library) }
 
-        Settings { SettingsView() }
+        Settings {
+            SettingsView()
+                .preferredColorScheme(colorScheme)
+                .onAppear { appearanceClock.setEnabled(automaticDayNight) }
+                .onChange(of: automaticDayNight) { _, enabled in appearanceClock.setEnabled(enabled) }
+        }
     }
 }
 
@@ -79,6 +92,7 @@ struct RoseCommands: Commands {
 
 struct SettingsView: View {
     @AppStorage("rose.appearance") private var appearance = "light"
+    @AppStorage(AutomaticAppearancePreference.key) private var automaticDayNight = AutomaticAppearancePreference.defaultValue
     @AppStorage("rose.staticSurfaces") private var staticSurfaces = RoseStyle.defaultStaticSurfaces
     @AppStorage(ViewerScrollZoomPreference.key) private var twoFingerScrollZoom = ViewerScrollZoomPreference.defaultValue
     var body: some View {
@@ -87,11 +101,18 @@ struct SettingsView: View {
                 Label("A little home for your references.", systemImage: "sparkle").font(.title3.weight(.semibold))
                 Text("Rose browses your folders directly. Images stay in place, and annotations are saved beside them as image.jpg.md files.")
                     .foregroundStyle(.secondary)
-                Picker("Appearance", selection: $appearance) {
+                Toggle(isOn: $automaticDayNight) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Automatic day/night")
+                        Text("Pink from 7 AM to 7 PM; dark rose overnight. Uses this computer’s local time.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                Picker("Manual appearance", selection: $appearance) {
                     Text("Pink").tag("light")
                     Text("Dark rose").tag("dark")
                     Text("Follow system").tag("system")
-                }.pickerStyle(.segmented)
+                }.pickerStyle(.segmented).disabled(automaticDayNight)
                 Toggle(isOn: $staticSurfaces) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Static surfaces")

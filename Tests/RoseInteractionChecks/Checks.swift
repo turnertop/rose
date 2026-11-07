@@ -16,6 +16,7 @@ enum InteractionChecks {
     static func main() {
         do {
             try preferences()
+            try automaticAppearance()
             try searchKeyboard()
             try selectionClicks()
             try viewerScrolling()

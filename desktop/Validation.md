@@ -4,9 +4,26 @@ The automated checks and Windows cross-build use .NET SDK 10.0.203 on macOS. The
 
 ## Automated result
 
-`bash scripts/check.sh` completed with **206 checks passed, zero failed groups**, and a Release build with **zero warnings and zero errors**. The standalone checks use generated temporary image folders and Avalonia's headless backend. They do not open a native app, read personal images, or capture/share the desktop.
+`bash scripts/check.sh` completed with **235 checks passed, zero failed groups**, and a Release build with **zero warnings and zero errors**. The standalone checks use generated temporary image folders and Avalonia's headless backend. They do not open a native app, read personal images, or capture/share the desktop.
 
 Covered behavior:
+
+- Release metadata: deterministic source roots normalize both compiler document
+  paths and Source Link mappings in portable PDBs. A compiler PathMap alone
+  does not sanitize Source Link roots when a Git remote is configured. Inspect
+  the actual DLL/PDB/package bytes before publication.
+
+- Automatic day/night (0.1.3): opt-in default and legacy JSON, saved boolean and
+  independent manual choice, morning/evening boundaries, local clocks three and
+  nine hours apart, startup/restart, Settings opened before loading finishes,
+  the actual checkbox and disabled manual picker, timer-driven live updates in
+  both main and Settings windows, restored manual appearance, and steady checks
+  that do not repaint the palette or notify the library. Dates/offsets are
+  injected; the system clock is never changed. Native Windows acceptance of
+  this update is still pending. The live timer check runs the headless dispatcher
+  event loop; merely draining queued jobs does not deliver OS timer events.
+  Its simulated clock advances with elapsed time so rendering delays cannot
+  leave the fixture frozen just before a boundary.
 
 - Date added (0.1.2): initial creation-date estimates, subsequent discoveries with inherited old timestamps, stable dates across metadata reuse and content edits, old JSON and numeric sort preference compatibility, persisted dates and direction, deterministic ties, offline roots, the actual ComboBox's newest-first selection, and a first image added after an empty folder has already been scanned. The Windows date records discovery when no reliable folder-arrival timestamp is available; it is not a recovered browser-download history.
 

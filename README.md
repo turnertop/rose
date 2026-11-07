@@ -4,9 +4,9 @@ Rose is a local image reference manager. Connect a folder, browse its images, an
 
 ## Download
 
-- [Windows x64 — Rose 0.1.2 preview](https://github.com/turnertop/rose/releases/download/v0.1.14/Rose-Windows-0.1.2-x64.zip)
-- [macOS 14+ on Apple silicon — Rose 0.1.14](https://github.com/turnertop/rose/releases/download/v0.1.14/Rose-macOS-0.1.14-arm64.zip)
-- [All release files, source code, and checksums](https://github.com/turnertop/rose/releases/tag/v0.1.14)
+- [Windows x64 — Rose 0.1.3 preview](https://github.com/turnertop/rose/releases/download/v0.1.15/Rose-Windows-0.1.3-x64.zip)
+- [macOS 14+ on Apple silicon — Rose 0.1.15](https://github.com/turnertop/rose/releases/download/v0.1.15/Rose-macOS-0.1.15-arm64.zip)
+- [All release files, source code, and checksums](https://github.com/turnertop/rose/releases/tag/v0.1.15)
 
 On Windows, choose **Extract All**, then run **Rose.exe** from the extracted
 folder. Keep the neighboring files together; .NET is included. On Mac, extract
@@ -18,14 +18,14 @@ has not been notarized. See the release notes for validation and platform limits
 
 | Platform | Implementation | Status |
 | --- | --- | --- |
-| macOS 14 or later | Native SwiftUI / AppKit at the repository root | 0.1.14 |
-| Windows x64 | C# / Avalonia in [`desktop/`](desktop/README.md) | 0.1.2 preview |
+| macOS 14 or later | Native SwiftUI / AppKit at the repository root | 0.1.15 |
+| Windows x64 | C# / Avalonia in [`desktop/`](desktop/README.md) | 0.1.3 preview |
 | Linux | Possible future target of `desktop/` | No validated release |
 
 Each installation has its own local library and settings. Mac and Windows do not need to connect or share images. Their common file format is ordinary images plus optional `image.ext.md` sidecars.
 
-The macOS download is **0.1.14** (build 15). Windows remains an independently
-versioned **0.1.2 preview**. The `v0.1.14` release contains both downloads with
+The macOS download is **0.1.15** (build 16). Windows remains an independently
+versioned **0.1.3 preview**. The `v0.1.15` release contains both downloads with
 their own version numbers.
 
 **License:** Rose's original project files are licensed under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for project attribution and [third-party notices](desktop/THIRD-PARTY-NOTICES.txt) for dependencies, which retain their own licenses. The source and app downloads include the project license and notices; the review workflow is documented in [publication preparation](docs/Publishing.md).
@@ -110,6 +110,14 @@ GIF animation uses the native animated image view. Static images are decoded off
 **Rose → Settings → Image Viewer → Two-finger scroll to zoom** enables upward two-finger slides to zoom in and downward slides to zoom out. It starts off, is saved across launches, and applies to an already-open viewer. With it enabled, drag to pan; pinch, + / −, and the zoom buttons remain available. Scroll momentum stops zooming when fingers lift. The setting affects the image viewer; gallery and Settings scrolling retain their normal behavior. Settings is also available from the toolbar’s ⋯ menu.
 
 **Rose → Settings** offers Pink, Dark rose, and Follow system. Pink with static surfaces is the default. It uses opaque gradients and border highlights to retain the pink aesthetic with fewer compositing effects. Optional live glass uses native macOS 14 blur materials; this build does not call the newer macOS 26 Liquid Glass APIs.
+
+Settings on Mac and Windows also offer **Automatic day/night**
+in Settings. It starts off. When enabled, Rose uses pink from 7 AM until 7 PM
+and dark rose overnight, using each computer's local clock and time zone.
+The choice persists across restarts. The manual appearance picker is disabled
+while scheduling is on; turning it off restores that saved manual choice.
+The gallery, viewer, and Settings update while open. Clock checks do not rescan
+folders or reload the image grid when the palette stays the same.
 
 **View → Static Surfaces** is on by default. It retains the palette, layout, and borders, replaces live materials and blurred background shapes with opaque gradients, and disables panel and window shadows. Turn it off to use live glass effects. The setting is also available in Settings and the toolbar menu, persists across launches, and applies without relaunching. Existing saved choices are respected. macOS Reduce Transparency also selects static surfaces. Settings scrolls so its full shortcut list remains accessible.
 

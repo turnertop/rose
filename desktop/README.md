@@ -6,7 +6,13 @@ The first preview provides folder connections and nested navigation, Fill/Fit/Li
 
 ## Try on a PC
 
-The packaging scripts produce `artifacts/Rose-Windows-0.1.2-x64.zip`; generated binaries are not included in the source tree. Extract that app ZIP and run `Rose.exe` from the extracted folder. Keep its neighboring files together. Close an older preview before launching the new one; local libraries and annotations carry over. The self-contained build includes .NET. The preview is unsigned. The 0.1.2 update has automated coverage but still needs a native Windows acceptance pass. See [README-Windows.txt](README-Windows.txt) for the complete instructions and remaining differences.
+The packaging scripts produce `artifacts/Rose-Windows-0.1.3-x64.zip`; generated binaries are not included in the source tree. Extract that app ZIP and run `Rose.exe` from the extracted folder. Keep its neighboring files together. Close an older preview before launching the new one; local libraries and annotations carry over. The self-contained build includes .NET. The preview is unsigned. The 0.1.3 update has automated coverage but still needs a native Windows acceptance pass. See [README-Windows.txt](README-Windows.txt) for the complete instructions and remaining differences.
+
+**Automatic day/night** is a saved Settings toggle, initially off. It uses this
+computer's local clock: pink from 7 AM until 7 PM, dark rose overnight. It updates
+the gallery, viewer, and open Settings window without reloading the library.
+Turning it off restores the independently saved manual appearance. Clock and
+time-zone changes are picked up on activation and by the next minute check.
 
 **Date added** is an additional sort option. Selecting it starts newest first; the arrow reverses the order. Initial imports and old indexes use local file creation as an estimate. After a folder's first scan, new images record when Rose discovers them, even when their creation/modification dates were preserved from elsewhere. Those dates survive refreshes, edits, and restarts in `library.json`. When Rose is closed, discovery waits until the next scan; exact earlier download times cannot always be reconstructed. Recently viewed remains viewing history. Existing sort preference IDs remain compatible, and a saved oldest-first direction is respected on relaunch.
 
@@ -38,7 +44,7 @@ powershell -ExecutionPolicy Bypass -File scripts/check.ps1
 
 The standalone checks exercise actual image codecs, sidecar preservation and failed writes, state reload, query semantics, scan reuse and offline roots, justified layout, cancellation/deduplication/concurrency, and input routing through Avalonia's headless backend. They render synthetic UI fixtures to `artifacts/checks/`. They do not start a real app, use screen sharing, or read personal image libraries. These are functional checks, not a measurement of Windows frame rate or a replacement for a real-PC pass.
 
-The current development pass completed **206 checks** with no build warnings or errors. See [Validation.md](Validation.md) for evidence, fixture scope, and remaining native Windows checks.
+The current development pass completed **235 checks** with no build warnings or errors. See [Validation.md](Validation.md) for evidence, fixture scope, and remaining native Windows checks.
 
 ## Package for Windows
 

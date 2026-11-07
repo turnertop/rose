@@ -46,6 +46,7 @@ public sealed record Preferences
     public bool IncludeSubfolders { get; set; } = true;
     public bool ScrollToZoom { get; set; }
     public string Theme { get; set; } = "Pink";
+    public bool AutomaticDayNight { get; set; }
     public AssetSort Sort { get; set; }
     public bool Ascending { get; set; } = true;
     // Legacy normal-size fields remain compatible with preview 0.1.0. Startup

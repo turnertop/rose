@@ -82,12 +82,17 @@ public sealed class MainWindow : Window
     private string _previousSearch = "";
     private string _sidebarSignature = "";
     private string _appliedTheme = "";
+    private bool _appliedAutomaticDayNight;
+    private bool? _paletteDark;
+    private readonly Func<DateTimeOffset> _localTime;
+    private readonly DispatcherTimer _appearanceTimer = new();
     private Window? _settings;
     private readonly DispatcherTimer _searchDelay = new() { Interval = TimeSpan.FromMilliseconds(110) };
 
     public MainWindow() : this(new StateStore(), true) { }
-    public MainWindow(StateStore store, bool initialize)
+    public MainWindow(StateStore store, bool initialize, Func<DateTimeOffset>? localTime = null)
     {
+        _localTime = localTime ?? ReadLocalTime;
         Library = new(store); _thumbnails = new(store.CachePath); Gallery = new(_thumbnails);
         Title = "Rose"; Width = 1280; Height = 840; MinWidth = 860; MinHeight = 540;
         Background = Brush.Parse("#FFE2ED");
@@ -141,6 +146,8 @@ public sealed class MainWindow : Window
         AddHandler(TextInputEvent, OnTextInput, RoutingStrategies.Tunnel);
         AddHandler(PointerPressedEvent, OnBackgroundPointer, RoutingStrategies.Tunnel);
         Deactivated += (_, _) => _spaceDown = false;
+        Activated += (_, _) => RefreshAppearance();
+        _appearanceTimer.Tick += (_, _) => RefreshAppearance();
         PropertyChanged += (_, e) => { if (e.Property == ActualThemeVariantProperty) ApplyTheme(); };
         DragDrop.SetAllowDrop(this, true);
         AddHandler(DragDrop.DragOverEvent, (_, e) => { e.DragEffects = e.DataTransfer.Contains(DataFormat.File) ? DragDropEffects.Copy : DragDropEffects.None; e.Handled = true; });
@@ -153,14 +160,14 @@ public sealed class MainWindow : Window
         {
             ReturnToBrowsing(false);
             if (initialize) await Library.InitializeAsync(false);
-            ApplyTheme(); RefreshView();
+            RefreshAppearance(); RefreshView();
             if (initialize && Library.CanSave) _ = Library.RefreshAsync();
         };
         Closing += OnClosing;
         Closed += (_, _) => DisposeResources();
         Placement = new(this, store.DirectoryPath);
         Placement.SaveFailed += message => Library.Report("Could not remember the window layout: " + message);
-        ApplyTheme(); RefreshView();
+        RefreshAppearance(); RefreshView();
     }
     public static Button ActionButton(string title, Action action)
     {
@@ -256,7 +263,11 @@ public sealed class MainWindow : Window
     {
         if (_isDisposed) return;
         var preferences = Library.State.Preferences;
-        if (_appliedTheme != preferences.Theme) { _appliedTheme = preferences.Theme; ApplyTheme(); }
+        if (_appliedTheme != preferences.Theme || _appliedAutomaticDayNight != preferences.AutomaticDayNight)
+        {
+            _appliedTheme = preferences.Theme; _appliedAutomaticDayNight = preferences.AutomaticDayNight;
+            RefreshAppearance();
+        }
         _updating = true;
         _size.Value = preferences.ThumbnailSize; _recursive.IsChecked = preferences.IncludeSubfolders;
         _sort.SelectedIndex = Array.FindIndex(SortChoices, x => x.Value == preferences.Sort);
@@ -576,13 +587,34 @@ public sealed class MainWindow : Window
         var index = Array.FindIndex(Gallery.Items, x => PathRules.Comparer.Equals(x.Path, _viewerAsset.Path));
         index = Math.Clamp(index + delta, 0, Gallery.Items.Length - 1); Gallery.Select(index); _ = OpenViewerAsync(Gallery.Items[index]);
     }
-    private void ApplyTheme()
+    private static DateTimeOffset ReadLocalTime()
     {
-        if (Library is null) return;
-        var preference = Library.State.Preferences.Theme;
+        // Pick up OS time-zone changes as well as daylight-saving transitions.
+        TimeZoneInfo.ClearCachedData();
+        return DateTimeOffset.Now;
+    }
+    public void RefreshAppearance()
+    {
+        if (_isDisposed) return;
+        _appearanceTimer.Stop();
+        var preferences = Library.State.Preferences;
+        var local = preferences.AutomaticDayNight ? _localTime() : default;
+        var preference = DayNightAppearance.Resolve(preferences.Theme, preferences.AutomaticDayNight, local);
         var variant = preference == "Dark rose" ? ThemeVariant.Dark : preference == "Pink" ? ThemeVariant.Light : ThemeVariant.Default;
         if (RequestedThemeVariant != variant) RequestedThemeVariant = variant;
+        foreach (var owned in OwnedWindows) if (owned.RequestedThemeVariant != variant) owned.RequestedThemeVariant = variant;
+        ApplyTheme();
+        if (preferences.AutomaticDayNight)
+        {
+            _appearanceTimer.Interval = DayNightAppearance.UntilNextMinute(local);
+            _appearanceTimer.Start();
+        }
+    }
+    private void ApplyTheme()
+    {
         var dark = ActualThemeVariant == ThemeVariant.Dark;
+        if (_paletteDark == dark) return;
+        _paletteDark = dark;
         Background = new LinearGradientBrush { StartPoint = new(0, 0, RelativeUnit.Relative), EndPoint = new(1, 1, RelativeUnit.Relative), GradientStops = new() { new(Color.Parse(dark ? "#291A25" : "#FFD6E4"), 0), new(Color.Parse(dark ? "#20171F" : "#FFF1F7"), .6), new(Color.Parse(dark ? "#331B2B" : "#FFDEED"), 1) } };
         Foreground = Brush.Parse(dark ? "#F3E8EF" : "#342330");
         var panel = Brush.Parse(dark ? "#30212C" : "#FFF0F6");
@@ -596,8 +628,28 @@ public sealed class MainWindow : Window
         var content = new StackPanel { Margin = new(24), Spacing = 16 };
         content.Children.Add(new TextBlock { Text = "Make yourself at home.", FontSize = 23, FontWeight = FontWeight.Bold });
         content.Children.Add(Caption("Appearance"));
-        var theme = new ComboBox { ItemsSource = new[] { "Pink", "Dark rose", "Follow system" }, SelectedItem = Library.State.Preferences.Theme, HorizontalAlignment = HorizontalAlignment.Stretch };
-        theme.SelectionChanged += (_, _) => { if (theme.SelectedItem is string value) { Library.State.Preferences.Theme = value; ApplyTheme(); dialog.RequestedThemeVariant = RequestedThemeVariant; Library.Touch(); } };
+        var automatic = new CheckBox { Name = "AutomaticDayNight", Content = "Automatic day/night", IsChecked = Library.State.Preferences.AutomaticDayNight };
+        var theme = new ComboBox { Name = "ManualAppearance", ItemsSource = new[] { "Pink", "Dark rose", "Follow system" }, SelectedItem = Library.State.Preferences.Theme, IsEnabled = !Library.State.Preferences.AutomaticDayNight, HorizontalAlignment = HorizontalAlignment.Stretch };
+        AutomationProperties.SetName(theme, "Manual appearance");
+        var updatingAppearance = false;
+        void SyncAppearanceControls()
+        {
+            updatingAppearance = true;
+            try
+            {
+                automatic.IsChecked = Library.State.Preferences.AutomaticDayNight;
+                theme.IsEnabled = !Library.State.Preferences.AutomaticDayNight;
+                theme.SelectedItem = Library.State.Preferences.Theme;
+            }
+            finally { updatingAppearance = false; }
+        }
+        automatic.IsCheckedChanged += (_, _) => { if (!updatingAppearance) { Library.State.Preferences.AutomaticDayNight = automatic.IsChecked == true; Library.Touch(); } };
+        theme.SelectionChanged += (_, _) => { if (!updatingAppearance && theme.SelectedItem is string value) { Library.State.Preferences.Theme = value; Library.Touch(); } };
+        Library.Changed += SyncAppearanceControls;
+        dialog.Closed += (_, _) => Library.Changed -= SyncAppearanceControls;
+        content.Children.Add(automatic);
+        content.Children.Add(new TextBlock { Text = "Pink from 7 AM to 7 PM; dark rose overnight. Uses this computer’s local time.", TextWrapping = TextWrapping.Wrap, Opacity = .7 });
+        content.Children.Add(new TextBlock { Text = "Manual appearance", FontSize = 12 });
         content.Children.Add(theme); content.Children.Add(new TextBlock { Text = "Static pink surfaces keep the interface light while browsing large image folders.", TextWrapping = TextWrapping.Wrap, Opacity = .7 });
         content.Children.Add(Caption("Image viewer"));
         var scroll = new CheckBox { Content = "Scroll to zoom", IsChecked = Library.State.Preferences.ScrollToZoom };
@@ -640,7 +692,7 @@ public sealed class MainWindow : Window
     }
     public void DisposeResources()
     {
-        if (_isDisposed) return; _isDisposed = true; _searchDelay.Stop();
+        if (_isDisposed) return; _isDisposed = true; _searchDelay.Stop(); _appearanceTimer.Stop();
         _previewCancellation?.Cancel(); _viewerCancellation?.Cancel();
         Placement.Dispose();
         _preview.Source = null; _previewBitmap?.Dispose(); Gallery.Dispose(); Viewport.Dispose(); _thumbnails.Dispose(); Library.Dispose();

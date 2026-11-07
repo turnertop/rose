@@ -1,4 +1,4 @@
-ROSE FOR WINDOWS - PREVIEW 0.1.2
+ROSE FOR WINDOWS - PREVIEW 0.1.3
 
 LICENSE
 Rose is licensed under the Apache License, Version 2.0. See LICENSE.txt and
@@ -6,7 +6,7 @@ NOTICE.txt in the extracted package. Dependencies retain their own licenses;
 their attribution and terms are in THIRD-PARTY-NOTICES.txt.
 
 1. Copy the ZIP to your Windows PC and choose "Extract All".
-2. Open the extracted Rose-Windows-0.1.2-x64 folder and double-click Rose.exe.
+2. Open the extracted Rose-Windows-0.1.3-x64 folder and double-click Rose.exe.
 3. Choose "Open a folder" (Ctrl+O), then select a folder of images.
 
 Keep the whole extracted folder together. .NET is included; no SDK installation
@@ -61,6 +61,14 @@ KEYBOARD
 
 Settings includes Pink, Dark rose, Follow system, and optional Scroll to zoom.
 Image size, view, panels, appearance, and zoom gesture preference are remembered.
+
+AUTOMATIC DAY/NIGHT
+Settings includes an Automatic day/night toggle, initially off. When enabled,
+Rose uses pink from 7 AM until 7 PM and dark rose overnight, using this PC's
+local time and time zone. Twelve-hour and 24-hour display formats work the same.
+It reevaluates while open and when returning to Rose. The manual appearance
+picker is disabled while scheduling is on. Turning the toggle off restores
+your saved manual choice. Both choices survive restarts.
 
 PREVIEW LIMITS
 The release was cross-built on macOS and checked with synthetic images and

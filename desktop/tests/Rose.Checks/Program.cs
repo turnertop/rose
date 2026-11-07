@@ -27,6 +27,7 @@ internal static partial class Checks
         {
             Run("Sidecars and safe writes", Sidecars);
             Run("Independent local state", State);
+            Run("Automatic appearance time zones and saved preferences", AutomaticAppearanceRules);
             Run("Added dates, legacy state and stable discovery", AddedDates);
             Run("Window placement geometry and storage", WindowPlacementGeometryChecks);
             Run("Search, folders and natural sorting", Query);
@@ -38,6 +39,7 @@ internal static partial class Checks
             Run("Window close, reopen and state restoration", WindowPlacementUiChecks);
             Run("Gallery cancellation during scroll and reorder", GalleryRequestCancellation);
             Run("Headless interface, keyboard and persistence", UserInterface);
+            Run("Automatic appearance settings and live transitions", AutomaticAppearanceInterface);
         }
         finally
         {

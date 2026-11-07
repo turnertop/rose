@@ -2,7 +2,7 @@
 
 The native implementation targets macOS 14 or later and uses Swift 5.10 with
 Apple's Command Line Tools. It has no third-party packages. The current app
-version is 0.1.14 (bundle build 15), approved for daily use.
+version is 0.1.15 (bundle build 16), approved by the owner for daily use.
 
 ## Automated checks
 
@@ -12,8 +12,8 @@ Run the full suite from the repository root:
 ./scripts/check.sh
 ```
 
-The suite contains 227 checks: 83 library/layout checks, 30 image-pipeline
-checks, and 114 interaction checks. They use generated images, disposable
+The suite contains 253 checks: 83 library/layout checks, 30 image-pipeline
+checks, and 140 interaction checks. They use generated images, disposable
 folders, and offscreen native UI fixtures. They do not need an actual image
 library or screen capture.
 
@@ -40,6 +40,14 @@ Coverage includes:
 - Preferences/viewer: thumbnail-size bounds and persistence, saved optional
   two-finger scroll zoom, gesture direction, momentum rejection, zoom limits,
   native panning, and existing keyboard/mouse zoom controls.
+- Automatic day/night (0.1.15): saved opt-in boolean, preserved manual choice,
+  exact morning/evening boundaries, local offsets three and nine hours ahead,
+  daylight-saving changes, real timer delivery, clock/time-zone notifications,
+  wake and activation, disabling and reenabling, and no appearance publications
+  during steady clock checks. Clock checks use injected dates and disposable
+  preferences; they do not change the system clock. The owner tested the Settings
+  feature and approved promotion; broader accessibility and device coverage
+  remain separate acceptance work.
 
 The image-pipeline checks have also passed under Thread Sanitizer. A separate
 optional indexing exercise is available with `./scripts/check.sh --benchmark`.
@@ -72,6 +80,21 @@ The latest interaction changes additionally have offscreen native/SwiftUI
 coverage. Physical trackpad sensitivity, accessibility beyond keyboard routing,
 visual appearance, and a complete user-driven relaunch still need a manual pass
 when producing a new distributable release.
+
+## Daily-use checkpoint — 0.1.15
+
+The owner tested the automatic day/night preview, confirmed it works, and
+approved updating the normal app and publishing the Mac and Windows builds.
+The source is promoted to `main` with a new `v0.1.15` tag, preserving the older
+checkpoints. The normal app is `build/Rose.app`; its predecessor is archived
+locally for rollback.
+
+The automatic appearance implementation has 253 passing Mac checks and 235
+passing desktop checks. Its default is off; enabling it uses each computer's
+local time for pink from 07:00 until 19:00 and dark rose overnight. Returning to
+manual mode restores the saved choice. Promotion does not alter the tested
+runtime behavior. Windows remains an independently versioned 0.1.3 preview;
+headless checks do not replace native Windows integration acceptance.
 
 ## Daily-use checkpoint — 0.1.14
 
