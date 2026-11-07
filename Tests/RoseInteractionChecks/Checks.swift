@@ -20,6 +20,7 @@ enum InteractionChecks {
             try searchKeyboard()
             try selectionClicks()
             try viewerScrolling()
+            try viewerContextMenu()
             print("\n\(checkCount) interaction checks passed.")
         } catch {
             fputs("Interaction check failed: \(error)\n", stderr)

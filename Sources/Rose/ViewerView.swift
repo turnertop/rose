@@ -27,7 +27,8 @@ struct ViewerView: View {
         ZStack {
             Color(red: 0.075, green: 0.06, blue: 0.078).ignoresSafeArea()
             ZoomableImageView(asset: asset, command: zoomCommand, request: request, twoFingerScrollZoom: twoFingerScrollZoom,
-                              ownerWindow: viewerWindow, zoom: $zoom, loading: $loading, failed: $failed)
+                              ownerWindow: viewerWindow, copyImage: { library.copyImage(asset) },
+                              showInFinder: { library.reveal(asset) }, zoom: $zoom, loading: $loading, failed: $failed)
                 .padding(.top, 65).padding(.bottom, 70).padding(.horizontal, 52)
                 .onTapGesture(count: 2) { send(zoom < 0.99 ? .actual : .fit) }
             if loading { ProgressView().controlSize(.large) }
@@ -105,6 +106,8 @@ struct ZoomableImageView: NSViewRepresentable {
     let request: Int
     let twoFingerScrollZoom: Bool
     let ownerWindow: ViewerWindowReference
+    let copyImage: () -> Void
+    let showInFinder: () -> Void
     @Binding var zoom: Double
     @Binding var loading: Bool
     @Binding var failed: Bool
@@ -122,8 +125,11 @@ struct ZoomableImageView: NSViewRepresentable {
         let image = PannableImageView()
         image.imageScaling = .scaleAxesIndependently
         image.animates = true
+        image.isEditable = false
+        image.allowsCutCopyPaste = false
         image.scrollView = scroll
         scroll.documentView = image
+        scroll.configureImageActions(copy: copyImage, reveal: showInFinder)
         context.coordinator.scroll = scroll; context.coordinator.imageView = image
         scroll.onUserZoom = { [weak coordinator = context.coordinator] in coordinator?.fitted = false }
         scroll.onResize = { [weak coordinator = context.coordinator] in if coordinator?.fitted == true { coordinator?.fit() } }
@@ -137,12 +143,16 @@ struct ZoomableImageView: NSViewRepresentable {
         let coordinator = context.coordinator
         coordinator.parent = self
         nsView.twoFingerScrollZoom = twoFingerScrollZoom
+        nsView.configureImageActions(copy: copyImage, reveal: showInFinder)
         let signature = "\(asset.id)|\(asset.modifiedAt.timeIntervalSince1970)"
         if coordinator.signature != signature { coordinator.signature = signature; coordinator.load(asset) }
         if coordinator.lastRequest != request { coordinator.lastRequest = request; coordinator.apply(command) }
     }
 
-    static func dismantleNSView(_ nsView: ZoomScrollView, coordinator: Coordinator) { coordinator.operation?.cancel(); coordinator.observation = nil }
+    static func dismantleNSView(_ nsView: ZoomScrollView, coordinator: Coordinator) {
+        coordinator.operation?.cancel(); coordinator.observation = nil
+        nsView.configureImageActions(copy: nil, reveal: nil)
+    }
 
     final class Coordinator {
         var parent: ZoomableImageView

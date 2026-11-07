@@ -4,9 +4,17 @@ The automated checks and Windows cross-build use .NET SDK 10.0.203 on macOS. The
 
 ## Automated result
 
-`bash scripts/check.sh` completed with **235 checks passed, zero failed groups**, and a Release build with **zero warnings and zero errors**. The standalone checks use generated temporary image folders and Avalonia's headless backend. They do not open a native app, read personal images, or capture/share the desktop.
+`bash scripts/check.sh` completed with **247 checks passed, zero failed groups**, and a Release build with **zero warnings and zero errors**. The standalone checks use generated temporary image folders and Avalonia's headless backend. They do not open a native app, read personal images, or capture/share the desktop.
 
 Covered behavior:
+
+- Viewer menu (0.1.4): actual viewport right-click opens Copy Image and Show in
+  Explorer without changing zoom; commands follow navigation and retire when
+  closed. Generated image pixels (including a 5,000-pixel source wider than the
+  viewer preview) are copied through the in-process headless clipboard and
+  remain valid after closing the viewer. Missing originals report failure and
+  preserve the previous clipboard. Reveal uses a stub; real Explorer and native
+  clipboard paste/exit behavior remain part of Windows acceptance.
 
 - Release metadata: deterministic source roots normalize both compiler document
   paths and Source Link mappings in portable PDBs. A compiler PathMap alone
@@ -49,7 +57,7 @@ Release builds use a neutral source-root mapping for compiler-generated paths in
 
 Native decoder imports inspected in the pinned x64 Skia/HarfBuzz/ANGLE binaries reference Windows system DLLs rather than a separately installed VC++ runtime. The packaging checks do not execute the resulting application on Windows.
 
-Preview 0.1.0 received an initial manual Windows launch and browsing smoke test. The 0.1.1 placement update and 0.1.2 Date added update have headless coverage. The current package is `Rose-Windows-0.1.2-x64.zip`; its native Windows acceptance checks remain pending.
+Preview 0.1.0 received an initial manual Windows launch and browsing smoke test. Later placement, Date added, automatic appearance, and viewer-menu updates have headless coverage. The current package is `Rose-Windows-0.1.4-x64.zip`; its native Windows acceptance checks remain pending.
 
 ## Remaining acceptance work
 

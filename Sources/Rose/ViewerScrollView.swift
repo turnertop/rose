@@ -1,5 +1,43 @@
 import AppKit
 
+@MainActor
+final class ViewerImageActions: NSObject {
+    private var copyImage: (() -> Void)?
+    private var showInFinder: (() -> Void)?
+    private let contextMenu = NSMenu()
+
+    override init() {
+        super.init()
+        // Keep preparation off the click path. This menu needs no system services,
+        // contextual plug-ins, image export, or symbol loading to show two actions.
+        contextMenu.autoenablesItems = false
+        contextMenu.allowsContextMenuPlugIns = false
+        for (title, action) in [
+            ("Copy Image", #selector(copyOpenedImage(_:))),
+            ("Show in Finder", #selector(revealOpenedImage(_:)))
+        ] {
+            let item = NSMenuItem(title: title, action: action, keyEquivalent: "")
+            item.target = self; item.isEnabled = false
+            contextMenu.addItem(item)
+        }
+    }
+
+    func configure(copy: (() -> Void)?, reveal: (() -> Void)?) {
+        copyImage = copy; showInFinder = reveal
+        contextMenu.item(at: 0)?.isEnabled = copy != nil
+        contextMenu.item(at: 1)?.isEnabled = reveal != nil
+        if copy == nil && reveal == nil { contextMenu.cancelTrackingWithoutAnimation() }
+    }
+
+    func menu() -> NSMenu? {
+        guard copyImage != nil || showInFinder != nil else { return nil }
+        return contextMenu
+    }
+
+    @objc private func copyOpenedImage(_ sender: Any?) { copyImage?() }
+    @objc private func revealOpenedImage(_ sender: Any?) { showInFinder?() }
+}
+
 final class ViewerWindowReference {
     weak var window: NSWindow?
 
@@ -10,6 +48,8 @@ final class ViewerWindowReference {
 }
 
 final class CenteringClipView: NSClipView {
+    weak var imageActions: ViewerImageActions?
+    override func menu(for event: NSEvent) -> NSMenu? { imageActions?.menu() }
     override func constrainBoundsRect(_ proposedBounds: NSRect) -> NSRect {
         var rect = super.constrainBoundsRect(proposedBounds)
         if let document = documentView {
@@ -21,6 +61,15 @@ final class CenteringClipView: NSClipView {
 }
 
 final class ZoomScrollView: NSScrollView {
+    private let imageActions = ViewerImageActions()
+
+    func configureImageActions(copy: (() -> Void)?, reveal: (() -> Void)?) {
+        imageActions.configure(copy: copy, reveal: reveal)
+        (contentView as? CenteringClipView)?.imageActions = imageActions
+        (documentView as? PannableImageView)?.imageActions = imageActions
+    }
+
+    override func menu(for event: NSEvent) -> NSMenu? { imageActions.menu() }
     var onResize: (() -> Void)?
     var onUserZoom: (() -> Void)?
     var twoFingerScrollZoom = ViewerScrollZoomPreference.defaultValue
@@ -72,8 +121,21 @@ final class ZoomScrollView: NSScrollView {
 
 final class PannableImageView: NSImageView {
     weak var scrollView: NSScrollView?
+    weak var imageActions: ViewerImageActions?
     private var previousPoint: NSPoint?
-    override func mouseDown(with event: NSEvent) { previousPoint = event.locationInWindow; NSCursor.closedHand.push() }
+    override func menu(for event: NSEvent) -> NSMenu? { imageActions?.menu() }
+    override func rightMouseDown(with event: NSEvent) {
+        guard let menu = menu(for: event) else { super.rightMouseDown(with: event); return }
+        // Bypass NSImageView's built-in image contextual handling.
+        NSMenu.popUpContextMenu(menu, with: event, for: self)
+    }
+    override func mouseDown(with event: NSEvent) {
+        if event.modifierFlags.contains(.control) {
+            if let menu = menu(for: event) { NSMenu.popUpContextMenu(menu, with: event, for: self) }
+            return
+        }
+        previousPoint = event.locationInWindow; NSCursor.closedHand.push()
+    }
     override func mouseDragged(with event: NSEvent) {
         guard let previousPoint, let scrollView else { return }
         let current = event.locationInWindow
@@ -83,6 +145,9 @@ final class PannableImageView: NSImageView {
         scrollView.reflectScrolledClipView(scrollView.contentView)
         self.previousPoint = current
     }
-    override func mouseUp(with event: NSEvent) { previousPoint = nil; NSCursor.pop() }
+    override func mouseUp(with event: NSEvent) {
+        guard previousPoint != nil else { return }
+        previousPoint = nil; NSCursor.pop()
+    }
     override func resetCursorRects() { addCursorRect(bounds, cursor: .openHand) }
 }

@@ -1,4 +1,4 @@
-ROSE FOR WINDOWS - PREVIEW 0.1.3
+ROSE FOR WINDOWS - PREVIEW 0.1.4
 
 LICENSE
 Rose is licensed under the Apache License, Version 2.0. See LICENSE.txt and
@@ -6,7 +6,7 @@ NOTICE.txt in the extracted package. Dependencies retain their own licenses;
 their attribution and terms are in THIRD-PARTY-NOTICES.txt.
 
 1. Copy the ZIP to your Windows PC and choose "Extract All".
-2. Open the extracted Rose-Windows-0.1.3-x64 folder and double-click Rose.exe.
+2. Open the extracted Rose-Windows-0.1.4-x64 folder and double-click Rose.exe.
 3. Choose "Open a folder" (Ctrl+O), then select a folder of images.
 
 Keep the whole extracted folder together. .NET is included; no SDK installation
@@ -58,6 +58,13 @@ KEYBOARD
   Viewer 0 / 1         Fit / actual source-pixel size
   Viewer F             Fullscreen
   Ctrl+wheel           Zoom in viewer; drag to pan
+
+VIEWER IMAGE MENU
+Right-click an opened image for Copy Image or Show in Explorer. Copy puts the
+original image's pixels on the clipboard, not a link or the zoomed-in crop.
+The original is decoded in the background within the decoder's memory limit;
+closing the viewer does not clear the copied image. Show in Explorer selects
+the original file. Zoom and pan are preserved.
 
 Settings includes Pink, Dark rose, Follow system, and optional Scroll to zoom.
 Image size, view, panels, appearance, and zoom gesture preference are remembered.

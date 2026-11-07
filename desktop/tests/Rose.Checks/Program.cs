@@ -40,6 +40,7 @@ internal static partial class Checks
             Run("Gallery cancellation during scroll and reorder", GalleryRequestCancellation);
             Run("Headless interface, keyboard and persistence", UserInterface);
             Run("Automatic appearance settings and live transitions", AutomaticAppearanceInterface);
+            Run("Viewer context menu and image clipboard", ViewerMenu);
         }
         finally
         {

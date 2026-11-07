@@ -2,7 +2,8 @@
 
 The native implementation targets macOS 14 or later and uses Swift 5.10 with
 Apple's Command Line Tools. It has no third-party packages. The current app
-version is 0.1.15 (bundle build 16), approved by the owner for daily use.
+version is 0.1.17 (bundle build 18), approved by the owner for daily use and
+publication after testing the revised viewer menu.
 
 ## Automated checks
 
@@ -12,8 +13,8 @@ Run the full suite from the repository root:
 ./scripts/check.sh
 ```
 
-The suite contains 253 checks: 83 library/layout checks, 30 image-pipeline
-checks, and 140 interaction checks. They use generated images, disposable
+The suite contains 269 checks: 83 library/layout checks, 30 image-pipeline
+checks, and 156 interaction checks. They use generated images, disposable
 folders, and offscreen native UI fixtures. They do not need an actual image
 library or screen capture.
 
@@ -40,6 +41,20 @@ Coverage includes:
 - Preferences/viewer: thumbnail-size bounds and persistence, saved optional
   two-finger scroll zoom, gesture direction, momentum rejection, zoom limits,
   native panning, and existing keyboard/mouse zoom controls.
+- Viewer menu (0.1.16): right-click and Control-click menu contents, image and
+  letterbox surfaces, native menu dispatch to the opened image, navigation,
+  retained-menu teardown, and preserved zoom/pan. Offscreen checks substitute
+  copy/reveal callbacks; native paste targets and Finder need manual acceptance.
+- Viewer menu preparation (0.1.17): the same plain two-item menu is prepared
+  once and reused across clicks and navigation, with contextual menu plug-ins
+  and automatic validation disabled. No symbol loading or copy/reveal callback
+  runs when requesting the menu. The image view explicitly handles secondary
+  clicks without its built-in image context actions. These checks do not open a
+  visible popup and cannot establish presented-menu latency. After reporting
+  a beach ball before the 0.1.16 menu appeared, the owner reported on 2026-11-07
+  that the revised preview works in their check. This is a successful manual
+  smoke test, not a measured latency result or a proven cause of the original
+  hang. Separate native paste-target and Finder acceptance remains as above.
 - Automatic day/night (0.1.15): saved opt-in boolean, preserved manual choice,
   exact morning/evening boundaries, local offsets three and nine hours ahead,
   daylight-saving changes, real timer delivery, clock/time-zone notifications,
@@ -80,6 +95,21 @@ The latest interaction changes additionally have offscreen native/SwiftUI
 coverage. Physical trackpad sensitivity, accessibility beyond keyboard routing,
 visual appearance, and a complete user-driven relaunch still need a manual pass
 when producing a new distributable release.
+
+## Daily-use checkpoint — 0.1.17
+
+The owner reported that the revised viewer-menu preview works, then explicitly
+approved updating the main app and publishing the Mac and Windows builds to
+the existing GitHub repository. The Mac menu prepares two text actions once,
+disables contextual menu plug-ins, and handles secondary clicks directly.
+Copy and reveal continue to target the image currently open in the viewer.
+
+The implementation has 269 passing Mac checks (83 library/layout, 30 image
+pipeline, 156 interaction) and 247 desktop checks. The main app is
+`build/Rose.app`; its 0.1.15 predecessor is retained locally for rollback.
+Windows is an independently versioned 0.1.4 preview. The owner's smoke test
+does not establish the original hang's cause or replace the remaining native
+clipboard, Finder/Explorer, accessibility, and device acceptance checks.
 
 ## Daily-use checkpoint — 0.1.15
 

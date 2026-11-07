@@ -9,8 +9,8 @@
     <key>CFBundleName</key><string>Rose</string>
     <key>CFBundleDisplayName</key><string>Rose</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.1.15</string>
-    <key>CFBundleVersion</key><string>16</string>
+    <key>CFBundleShortVersionString</key><string>0.1.17</string>
+    <key>CFBundleVersion</key><string>18</string>
     <key>CFBundleIconFile</key><string>Rose</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>NSHighResolutionCapable</key><true/>

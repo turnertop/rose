@@ -4,9 +4,9 @@ Rose is a local image reference manager. Connect a folder, browse its images, an
 
 ## Download
 
-- [Windows x64 — Rose 0.1.3 preview](https://github.com/turnertop/rose/releases/download/v0.1.15/Rose-Windows-0.1.3-x64.zip)
-- [macOS 14+ on Apple silicon — Rose 0.1.15](https://github.com/turnertop/rose/releases/download/v0.1.15/Rose-macOS-0.1.15-arm64.zip)
-- [All release files, source code, and checksums](https://github.com/turnertop/rose/releases/tag/v0.1.15)
+- [Windows x64 — Rose 0.1.4 preview](https://github.com/turnertop/rose/releases/download/v0.1.17/Rose-Windows-0.1.4-x64.zip)
+- [macOS 14+ on Apple silicon — Rose 0.1.17](https://github.com/turnertop/rose/releases/download/v0.1.17/Rose-macOS-0.1.17-arm64.zip)
+- [All release files, source code, and checksums](https://github.com/turnertop/rose/releases/tag/v0.1.17)
 
 On Windows, choose **Extract All**, then run **Rose.exe** from the extracted
 folder. Keep the neighboring files together; .NET is included. On Mac, extract
@@ -18,14 +18,14 @@ has not been notarized. See the release notes for validation and platform limits
 
 | Platform | Implementation | Status |
 | --- | --- | --- |
-| macOS 14 or later | Native SwiftUI / AppKit at the repository root | 0.1.15 |
-| Windows x64 | C# / Avalonia in [`desktop/`](desktop/README.md) | 0.1.3 preview |
+| macOS 14 or later | Native SwiftUI / AppKit at the repository root | 0.1.17 |
+| Windows x64 | C# / Avalonia in [`desktop/`](desktop/README.md) | 0.1.4 preview |
 | Linux | Possible future target of `desktop/` | No validated release |
 
 Each installation has its own local library and settings. Mac and Windows do not need to connect or share images. Their common file format is ordinary images plus optional `image.ext.md` sidecars.
 
-The macOS download is **0.1.15** (build 16). Windows remains an independently
-versioned **0.1.3 preview**. The `v0.1.15` release contains both downloads with
+The macOS download is **0.1.17** (build 18). Windows remains an independently
+versioned **0.1.4 preview**. The `v0.1.17` release contains both downloads with
 their own version numbers.
 
 **License:** Rose's original project files are licensed under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for project attribution and [third-party notices](desktop/THIRD-PARTY-NOTICES.txt) for dependencies, which retain their own licenses. The source and app downloads include the project license and notices; the review workflow is documented in [publication preparation](docs/Publishing.md).
@@ -106,6 +106,12 @@ Single-click selects an image and updates the inspector. Double-click, Return, o
 | New collection | ⇧ ⌘ N |
 
 GIF animation uses the native animated image view. Static images are decoded off the main thread; exceptionally large viewer images are downsampled to a maximum edge of 8,192 pixels to bound decode memory. “Actual size” maps source pixels to display pixels, so a larger source can exceed the resolution of this bounded preview.
+
+Right-click an opened image for **Copy Image** and **Show in Finder** (**Show in
+Explorer** on Windows). Control-click also works on Mac. Copy uses the original
+image, rather than its zoomed crop or a link; Windows retains its decoder's
+memory limit. The Mac menu reuses two prepared text actions with contextual
+menu plug-ins disabled.
 
 **Rose → Settings → Image Viewer → Two-finger scroll to zoom** enables upward two-finger slides to zoom in and downward slides to zoom out. It starts off, is saved across launches, and applies to an already-open viewer. With it enabled, drag to pan; pinch, + / −, and the zoom buttons remain available. Scroll momentum stops zooming when fingers lift. The setting affects the image viewer; gallery and Settings scrolling retain their normal behavior. Settings is also available from the toolbar’s ⋯ menu.
 

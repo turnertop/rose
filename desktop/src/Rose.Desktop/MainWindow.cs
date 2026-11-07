@@ -72,6 +72,7 @@ public sealed class MainWindow : Window
     private readonly TextBlock _viewerTitle = new() { VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis, FontWeight = FontWeight.SemiBold };
     private readonly TextBlock _zoomLabel = new() { VerticalAlignment = VerticalAlignment.Center, Width = 55, TextAlignment = TextAlignment.Center };
     private ImageAsset? _viewerAsset;
+    private readonly ImageClipboard _imageClipboard = new();
     private ImageAsset? _inspected;
     private CancellationTokenSource? _previewCancellation;
     private CancellationTokenSource? _viewerCancellation;
@@ -245,6 +246,7 @@ public sealed class MainWindow : Window
     }
     private void BuildViewer()
     {
+        Viewport.ContextMenu = ViewerImageMenu.Create(() => ViewerOpen ? _viewerAsset : null, CopyImageAsync, Reveal);
         var grid = new Grid { RowDefinitions = new("Auto,*,Auto"), RowSpacing = 10 };
         var top = new Grid { ColumnDefinitions = new("Auto,*,Auto,Auto,Auto"), ColumnSpacing = 10 };
         Place(top, ActionButton("← Back", CloseViewer), 0); Place(top, _viewerTitle, 1);
@@ -526,6 +528,17 @@ public sealed class MainWindow : Window
     {
         if (Clipboard is { } clipboard) await clipboard.SetTextAsync($"![{asset.Name.Replace("]", "\\]")}]({new Uri(asset.Path).AbsoluteUri})");
     }
+    private async Task CopyImageAsync(ImageAsset asset)
+    {
+        if (_isDisposed) return;
+        if (Clipboard is not { } clipboard) { Library.Report("The clipboard is unavailable."); return; }
+        try { await _imageClipboard.CopyAsync(asset.Path, clipboard); }
+        catch (OperationCanceledException) { }
+        catch (Exception error)
+        {
+            if (!_isDisposed) Library.Report("Could not copy this image: " + error.Message);
+        }
+    }
     private async Task RecycleAsync(ImageAsset asset)
     {
         if (!OperatingSystem.IsWindows()) { Library.Report("Recycle Bin actions are available in the Windows build."); return; }
@@ -578,6 +591,7 @@ public sealed class MainWindow : Window
     }
     public void CloseViewer()
     {
+        Viewport.ContextMenu?.Close();
         _viewerCancellation?.Cancel(); _viewer.IsVisible = false; _viewerAsset = null; Viewport.SetBitmap(null, true);
         Gallery.ResumeRequests(); Gallery.SetViewport(GalleryScroll.Offset.Y, GalleryScroll.Viewport.Height); ReturnToBrowsing(false);
     }
@@ -694,6 +708,7 @@ public sealed class MainWindow : Window
     {
         if (_isDisposed) return; _isDisposed = true; _searchDelay.Stop(); _appearanceTimer.Stop();
         _previewCancellation?.Cancel(); _viewerCancellation?.Cancel();
+        _imageClipboard.Dispose();
         Placement.Dispose();
         _preview.Source = null; _previewBitmap?.Dispose(); Gallery.Dispose(); Viewport.Dispose(); _thumbnails.Dispose(); Library.Dispose();
     }
