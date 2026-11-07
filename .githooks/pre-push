@@ -1,0 +1,13 @@
+#!/bin/sh
+# Deliberately fail closed. This guard has no environment-variable bypass.
+cat >&2 <<'MESSAGE'
+Rose: push blocked by the local publication guard.
+
+Source preparation and local commits do not authorize publication.
+Development history may contain private context. Publish only a reviewed,
+cleaned snapshot after the owner explicitly approves the destination and
+contents. Selecting Apache-2.0 does not authorize an upload.
+
+Do not bypass this hook to complete routine development work.
+MESSAGE
+exit 1

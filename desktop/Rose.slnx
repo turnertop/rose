@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Rose.Core/Rose.Core.csproj" />
+    <Project Path="src/Rose.Imaging/Rose.Imaging.csproj" />
+    <Project Path="src/Rose.Desktop/Rose.Desktop.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Rose.Checks/Rose.Checks.csproj" />
+  </Folder>
+</Solution>

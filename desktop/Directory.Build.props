@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Deterministic>true</Deterministic>
+    <!-- Release symbols and assembly debug records use a neutral source root. -->
+    <PathMap Condition="'$(Configuration)' == 'Release' and '$(PathMap)' == ''">$(MSBuildThisFileDirectory)=/_/rose/desktop/</PathMap>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RuntimeIdentifiers>win-x64;win-arm64;osx-arm64;osx-x64;linux-x64;linux-arm64</RuntimeIdentifiers>
+    <Version>0.1.2</Version>
+    <Authors>Rose</Authors>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <NuGetAudit>true</NuGetAudit>
+  </PropertyGroup>
+</Project>
